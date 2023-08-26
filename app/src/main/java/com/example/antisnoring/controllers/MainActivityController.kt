@@ -5,6 +5,8 @@ import com.example.antisnoring.common.Dictaphone
 import com.example.antisnoring.common.Whistling
 import com.example.antisnoring.screens.MainActivity
 
+const val TRIGGER: Double = 35.0
+
 class MainActivityController(private val mainActivity: MainActivity): CallbackAmplitude {
     private val dictaphone: Dictaphone by lazy {
         Dictaphone(mainActivity, this).apply {
@@ -48,7 +50,7 @@ class MainActivityController(private val mainActivity: MainActivity): CallbackAm
         mainActivity.runOnUiThread {
             mainActivity.setValue(value)
         }
-        if (value >= 80.0){
+        if (value >= TRIGGER){
             if (!whistling.isPlay) {
                 whistling.playHandler(3000)
             }
