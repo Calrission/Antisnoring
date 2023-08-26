@@ -8,11 +8,13 @@ import android.media.AudioAttributes
 import android.media.MediaRecorder
 import android.media.SoundPool
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import kotlinx.android.synthetic.main.activity_main.*
+import com.example.antisnoring.databinding.ActivityMainBinding
+import java.io.File
 import java.util.*
 import kotlin.math.abs
 
@@ -25,14 +27,16 @@ class MainActivity : AppCompatActivity() {
     var isScan = false
     lateinit var thread: Timer
 
+    lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         requestPermissions()
 
-        recorder = MediaRecorder()
-        button_sound.setOnClickListener {
+        binding.buttonSound.setOnClickListener {
             if (isScan){
                 stopScan()
             }else {
@@ -72,34 +76,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initMediaRecorder(){
-        recorder!!.setAudioSource(MediaRecorder.AudioSource.MIC)
-        recorder!!.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-        recorder!!.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-        recorder!!.setOutputFile("/dev/null")
-        recorder!!.prepare()
-        recorder!!.start()
-        recorder!!.pause()
+        recorder = MediaRecorder().apply {
+            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            setOutputFile("${cacheDir.absolutePath}${File.pathSeparator}${System.currentTimeMillis()}.mp4")
+            prepare()
+            start()
+            pause()
+        }
     }
 
     private fun startScan(){
         isScan = true
-        recorder!!.resume()
+        recorder?.resume()
         thread = Timer()
-        thread.schedule(MyTimerTask(this, recorder!!, value, Handler()), 0, 1000)
+        thread.schedule(MyTimerTask(this, recorder!!, binding.value, Handler()), 0, 1000)
     }
 
     private fun stopScan(){
         isScan = false
         stopSoundSvist()
-        recorder!!.pause()
+        recorder?.pause()
         thread.cancel()
-        value.text = "0 ДБ"
+        binding.value.text = "0 ДБ"
     }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (grantResults[0] != PackageManager.PERMISSION_GRANTED){
@@ -109,9 +115,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun switchIMG(){
         if (isScan)
-            button_sound.setImageResource(R.drawable.pause)
+            binding.buttonSound.setImageResource(R.drawable.pause)
         else
-            button_sound.setImageResource(R.drawable.play)
+            binding.buttonSound.setImageResource(R.drawable.play)
     }
 
     override fun onPause() {
