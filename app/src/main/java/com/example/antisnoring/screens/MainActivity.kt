@@ -63,9 +63,9 @@ class MainActivity : AppCompatActivity() {
 
     fun setImageButtonSound(isPlay: Boolean){
         if (isPlay)
-            binding.buttonSound.setImageResource(R.drawable.play)
-        else
             binding.buttonSound.setImageResource(R.drawable.pause)
+        else
+            binding.buttonSound.setImageResource(R.drawable.play)
     }
 
     override fun onPause() {

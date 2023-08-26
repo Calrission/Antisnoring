@@ -41,6 +41,7 @@ class MainActivityController(private val mainActivity: MainActivity): CallbackAm
         whistling.stop()
         dictaphone.stop()
         mainActivity.setImageButtonSound(false)
+        mainActivity.setValue(0.0)
     }
 
     override fun onNewValue(value: Double) {
